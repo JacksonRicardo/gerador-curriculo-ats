@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador ATS - Controle Total</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #000000;
+            --secondary-color: #2c3e50;
+            --icon-color: #333;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #eef2f3;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Editor (Esquerda) --- */
+        .editor-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            height: 90vh;
+            overflow-y: auto;
+            border-top: 5px solid var(--secondary-color);
+        }
+
+        /* --- Visualização na TELA --- */
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            background-color: #2c3e50;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        #resume-preview {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            color: #000;
+            line-height: 1.5;
+            box-sizing: border-box;
+        }
+
+        /* --- Tipografia --- */
+        .resume-name {
+            font-size: 24pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            line-height: 1.1;
+        }
+
+        .resume-target-role {
+            font-size: 14pt;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #444;
+            margin-bottom: 15px;
+        }
+
+        .resume-contact-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            font-size: 11pt;
+        }
+        
+        .contact-item i {
+            font-size: 0.9rem;
+            color: var(--icon-color);
+            margin-right: 5px;
+        }
+
+        .resume-section-title {
+            font-size: 14pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 4px;
+            page-break-after: avoid; 
+            break-after: avoid;
+        }
+
+        .resume-item {
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .resume-item-title { font-weight: 700; font-size: 13pt; }
+        .resume-item-subtitle { font-weight: 500; font-size: 12pt; color: #222; }
+        
+        .resume-date { 
+            float: right; 
+            font-weight: 600; 
+            font-size: 11pt; 
+            text-align: right;
+            white-space: nowrap; 
+        }
+
+        .resume-content {
+            font-size: 12pt;
+            text-align: left;
+            margin-top: 5px;
+            white-space: pre-wrap; 
+            overflow-wrap: break-word;
+            line-height: 1.5;
+            color: #000;
+        }
+
+        .skills-wrapper { display: flex; flex-wrap: wrap; gap: 8px 15px; }
+        .skill-tag { display: inline-block; }
+        .skill-name { font-weight: 700; color: #000; font-size: 12pt; }
+        .skill-level { font-style: italic; font-size: 11pt; color: #444; }
+
+        /* --- IMPRESSÃO --- */
+        @media print {
+            @page {
+                size: A4;
+                margin: 1.5cm;
+            }
+
+            header, .no-print, .editor-section, .col-lg-5 {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+            }
+
+            html, body, .container-fluid, .row, .col-lg-7, .preview-container {
+                display: block !important; 
+                width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                overflow: visible !important;
+                position: static !important;
+            }
+
+            #resume-preview {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                min-height: auto !important;
+            }
+
+            body, p, div, span, li, a {
+                font-size: 12pt !important;
+                color: #000 !important;
+            }
+            .resume-name { font-size: 24pt !important; }
+            .resume-target-role { font-size: 14pt !important; }
+            .resume-section-title { font-size: 14pt !important; margin-top: 20px !important; }
+            a { text-decoration: none !important; }
+        }
+
+        @media (max-width: 991px) {
+            #resume-preview { width: 100%; padding: 15px; zoom: 0.5; }
+            .editor-section { height: auto; }
+            .preview-container { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-dark text-white p-3 mb-0 no-print shadow sticky-top">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h5 m-0"><i class="fas fa-file-contract me-2"></i>Gerador ATS</h1>
+            <div>
+                <button onclick="clearData()" class="btn btn-outline-secondary btn-sm me-2">Limpar</button>
+                <button onclick="loadExampleData()" class="btn btn-outline-light btn-sm me-2">Preencher Exemplo</button>
+                <button onclick="window.print()" class="btn btn-success fw-bold btn-sm">
+                    <i class="fas fa-download me-2"></i>Salvar PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            
+            <div class="col-lg-5 no-print bg-light">
+                <div class="editor-section m-3">
+                    <h5 class="text-secondary border-bottom pb-2">Dados Pessoais</h5>
+                    <div class="row g-2 mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" id="inputName" oninput="updateResume()">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label bg-warning bg-opacity-10 p-1 rounded">Cargo Almejado</label>
+                            <input type="text" class="form-control" id="inputTarget" oninput="updateResume()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="inputEmail" oninput="updateResume()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Telefone</label>
+                            <input type="text" class="form-control" id="inputPhone" oninput="updateResume()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">LinkedIn</label>
+                            <input type="text" class="form-control" id="inputLinkedin" oninput="updateResume()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Cidade/UF</label>
+                            <input type="text" class="form-control" id="inputLocation" oninput="updateResume()">
+                        </div>
+                    </div>
+
+                    <h5 class="text-secondary border-bottom pb-2 mt-4">Resumo</h5>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="inputSummary" rows="5" oninput="updateResume()"></textarea>
+                    </div>
+
+                    <h5 class="text-secondary border-bottom pb-2 mt-4">Experiência</h5>
+                    <div id="experience-form-container"></div>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="addExperienceField()">+ Adicionar Experiência</button>
+
+                    <h5 class="text-secondary border-bottom pb-2 mt-4">Educação</h5>
+                    <div id="education-form-container"></div>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="addEducationField()">+ Adicionar Formação</button>
+
+                    <h5 class="text-secondary border-bottom pb-2 mt-4">Cursos</h5>
+                    <div id="courses-form-container"></div>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="addCourseField()">+ Adicionar Curso</button>
+
+                    <h5 class="text-secondary border-bottom pb-2 mt-4">Habilidades</h5>
+                    <div id="skills-container"></div>
+                    <button class="btn btn-outline-dark btn-sm w-100 mt-2" onclick="addSkillField()">+ Adicionar Habilidade</button>
+                    
+                    <div class="mt-5 text-center text-muted small">
+                        <p>Preencha os dados ou clique em "Preencher Exemplo".</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7 preview-container">
+                <div id="resume-preview">
+                    
+                    <div class="text-center">
+                        <div class="resume-name" id="previewName">SEU NOME</div>
+                        <div class="resume-target-role" id="previewTarget">CARGO ALMEJADO</div>
+                        <div class="resume-contact-container" id="previewContact"></div>
+                    </div>
+
+                    <div id="sectionSummary">
+                        <div class="resume-section-title">Resumo Profissional</div>
+                        <div class="resume-content" id="previewSummary"></div>
+                    </div>
+
+                    <div id="sectionExperience">
+                        <div class="resume-section-title">Experiência Profissional</div>
+                        <div id="previewExperienceList"></div>
+                    </div>
+
+                    <div id="sectionEducation">
+                        <div class="resume-section-title">Formação Acadêmica</div>
+                        <div id="previewEducationList"></div>
+                    </div>
+
+                    <div id="sectionCourses">
+                        <div class="resume-section-title">Cursos e Certificações</div>
+                        <div id="previewCoursesList"></div>
+                    </div>
+
+                    <div id="sectionSkills">
+                        <div class="resume-section-title">Habilidades</div>
+                        <div id="previewSkills" class="skills-wrapper"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- INICIALIZAÇÃO VAZIA---
+        window.onload = function() {
+            // Cria apenas os campos vazios para o usuário começar a digitar
+            addExperienceField();
+            addEducationField();
+            addCourseField();
+            addSkillField();
+            updateResume();
+        };
+
+        // --- PREENCHIMENTO AUTOMÁTICO (Só no botão) ---
+        function loadExampleData() {
+            if(!confirm("Deseja preencher com dados de exemplo? Os campos atuais serão substituídos.")) return;
+
+            // Limpa containers
+            document.getElementById('experience-form-container').innerHTML = '';
+            document.getElementById('education-form-container').innerHTML = '';
+            document.getElementById('courses-form-container').innerHTML = '';
+            document.getElementById('skills-container').innerHTML = '';
+
+            // 1. Dados Pessoais
+            document.getElementById('inputName').value = "Mariana Costa";
+            document.getElementById('inputTarget').value = "ANALISTA ADMINISTRATIVO PLENO";
+            document.getElementById('inputEmail').value = "mariana.costa@email.com";
+            document.getElementById('inputPhone').value = "(11) 98877-6655";
+            document.getElementById('inputLinkedin').value = "linkedin.com/in/marianacosta";
+            document.getElementById('inputLocation').value = "São Paulo, SP";
+
+            // 2. Resumo
+            document.getElementById('inputSummary').value = "Profissional organizada e proativa com mais de 5 anos de experiência na área administrativa e financeira. Expertise em gestão de contas a pagar/receber, conciliação bancária e suporte à diretoria. Focada em otimização de processos e redução de custos operacionais. Usuária avançada de Excel e sistemas ERP (SAP e Totvs).";
+
+            // 3. Experiência 1 (Atual)
+            addExperienceField();
+            let exp1 = document.getElementById('experience-form-container').lastElementChild;
+            exp1.querySelector('.title-exp').value = "Analista Administrativa";
+            exp1.querySelector('.company-exp').value = "Grupo Soluções Corporativas";
+            exp1.querySelector('.start-date-exp').value = "2021-03";
+            exp1.querySelector('.current-role-exp').click(); // Marca como atual
+            exp1.querySelector('.desc-exp').value = "Responsável pela gestão de fluxo de caixa e controle orçamentário.\n- Implementei novo processo de compras que reduziu custos em 15%.\n- Suporte direto à gerência na elaboração de relatórios financeiros mensais.\n- Gestão de benefícios e ponto eletrônico de 50 colaboradores.";
+
+            // 4. Experiência 2 (Passada)
+            addExperienceField();
+            let exp2 = document.getElementById('experience-form-container').lastElementChild;
+            exp2.querySelector('.title-exp').value = "Assistente Financeiro";
+            exp2.querySelector('.company-exp').value = "Logística Brasil Ltda";
+            exp2.querySelector('.start-date-exp').value = "2018-02";
+            exp2.querySelector('.end-date-exp').value = "2021-02";
+            exp2.querySelector('.desc-exp').value = "Atuação no setor de contas a pagar e receber.\n- Realização de conciliação bancária diária e emissão de notas fiscais.\n- Negociação com fornecedores para extensão de prazos de pagamento.\n- Organização de arquivos digitais e físicos do departamento.";
+
+            // 5. Educação
+            addEducationField();
+            let edu1 = document.getElementById('education-form-container').lastElementChild;
+            edu1.querySelector('.title-edu').value = "Bacharelado em Administração de Empresas";
+            edu1.querySelector('.school-edu').value = "Universidade Paulista (UNIP)";
+            edu1.querySelector('.date-edu').value = "2019";
+
+            // 6. Cursos
+            addCourseField();
+            let cur1 = document.getElementById('courses-form-container').lastElementChild;
+            cur1.querySelector('.title-course').value = "Excel Avançado e VBA";
+            cur1.querySelector('.school-course').value = "Udemy";
+            cur1.querySelector('.date-course').value = "40h";
+
+            // 7. Skills
+            createSkill("Microsoft Excel", "Avançado");
+            createSkill("SAP", "Intermediário");
+            createSkill("Inglês", "Intermediário");
+            createSkill("Gestão de Tempo", "Avançado");
+            createSkill("Comunicação", "Avançado");
+
+            updateResume();
+        }
+
+        function clearData() {
+            if(confirm("Deseja limpar todos os campos?")) {
+                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                document.getElementById('experience-form-container').innerHTML = '';
+                document.getElementById('education-form-container').innerHTML = '';
+                document.getElementById('courses-form-container').innerHTML = '';
+                document.getElementById('skills-container').innerHTML = '';
+                
+                // Restaura campos vazios
+                addExperienceField();
+                addEducationField();
+                addCourseField();
+                addSkillField();
+                updateResume();
+            }
+        }
+
+        // --- Funções do Núcleo ---
+
+        function updateResume() {
+            document.getElementById('previewName').innerText = document.getElementById('inputName').value || "SEU NOME";
+            document.getElementById('previewTarget').innerText = document.getElementById('inputTarget').value || "CARGO ALMEJADO";
+            
+            const email = document.getElementById('inputEmail').value;
+            const phone = document.getElementById('inputPhone').value;
+            const linkedin = document.getElementById('inputLinkedin').value;
+            const location = document.getElementById('inputLocation').value;
+            let cHtml = "";
+            if(email) cHtml += `<div class="contact-item"><i class="fas fa-envelope"></i> ${email}</div>`;
+            if(phone) cHtml += `<div class="contact-item"><i class="fas fa-phone"></i> ${phone}</div>`;
+            if(linkedin) {
+                let clean = linkedin.replace(/^https?:\/\//,'').replace(/^www\./,'');
+                cHtml += `<div class="contact-item"><i class="fab fa-linkedin"></i> ${clean}</div>`;
+            }
+            if(location) cHtml += `<div class="contact-item"><i class="fas fa-map-marker-alt"></i> ${location}</div>`;
+            document.getElementById('previewContact').innerHTML = cHtml;
+
+            document.getElementById('previewSummary').innerText = document.getElementById('inputSummary').value;
+
+            updateExperience();
+            updateGeneric('edu');
+            updateGeneric('course');
+            updateSkills();
+        }
+
+        function updateExperience() {
+            const titles = document.querySelectorAll('.title-exp');
+            const companies = document.querySelectorAll('.company-exp');
+            const starts = document.querySelectorAll('.start-date-exp');
+            const ends = document.querySelectorAll('.end-date-exp');
+            const currents = document.querySelectorAll('.current-role-exp');
+            const descs = document.querySelectorAll('.desc-exp');
+            let html = "";
+
+            titles.forEach((el, i) => {
+                if(el.value || companies[i].value) {
+                    let dateDisplay = "";
+                    if(starts[i].value) {
+                        const sFmt = formatMonthYear(starts[i].value);
+                        const eFmt = currents[i].checked ? "Atual" : formatMonthYear(ends[i].value);
+                        const dur = calculateDuration(starts[i].value, ends[i].value, currents[i].checked);
+                        dateDisplay = `${sFmt} - ${eFmt} <span style="font-weight:400; font-size:0.9em">${dur}</span>`;
+                    }
+                    const safeDesc = descs[i].value.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                    html += `
+                    <div class="resume-item">
+                        <div class="resume-date">${dateDisplay}</div>
+                        <div class="resume-item-title">${el.value}</div>
+                        <div class="resume-item-subtitle">${companies[i].value}</div>
+                        ${descs[i].value ? `<div class="resume-content">${safeDesc}</div>` : ''}
+                    </div>`;
+                }
+            });
+            document.getElementById('previewExperienceList').innerHTML = html;
+        }
+
+        function updateGeneric(type) {
+            let tClass = type === 'edu' ? '.title-edu' : '.title-course';
+            let sClass = type === 'edu' ? '.school-edu' : '.school-course';
+            let dClass = type === 'edu' ? '.date-edu' : '.date-course';
+            let target = type === 'edu' ? 'previewEducationList' : 'previewCoursesList';
+
+            const titles = document.querySelectorAll(tClass);
+            const subs = document.querySelectorAll(sClass);
+            const dates = document.querySelectorAll(dClass);
+            let html = "";
+
+            titles.forEach((el, i) => {
+                if(el.value || subs[i].value) {
+                    html += `
+                    <div class="resume-item">
+                        <div class="resume-date">${dates[i].value}</div>
+                        <div class="resume-item-title">${el.value}</div>
+                        <div class="resume-item-subtitle">${subs[i].value}</div>
+                    </div>`;
+                }
+            });
+            document.getElementById(target).innerHTML = html;
+        }
+
+        function updateSkills() {
+            const names = document.querySelectorAll('.skill-input-name');
+            const levels = document.querySelectorAll('.skill-input-level');
+            let html = "";
+            names.forEach((el, i) => {
+                if(el.value) {
+                    let lvl = levels[i].value ? ` <span class="skill-level">(${levels[i].value})</span>` : "";
+                    html += `<div class="skill-tag"><span class="skill-name">• ${el.value}</span>${lvl}</div>`;
+                }
+            });
+            document.getElementById('previewSkills').innerHTML = html;
+        }
+
+        // --- Helpers ---
+        function createSkill(name, level) {
+            addSkillField();
+            let div = document.getElementById('skills-container').lastElementChild;
+            div.querySelector('.skill-input-name').value = name;
+            div.querySelector('.skill-input-level').value = level;
+        }
+
+        function formatMonthYear(dateString) {
+            if(!dateString) return "";
+            const [year, month] = dateString.split('-');
+            return `${month}/${year}`;
+        }
+
+        function calculateDuration(start, end, isCurrent) {
+            if (!start) return "";
+            let startDate = new Date(start + "-01");
+            let endDate = isCurrent ? new Date() : (end ? new Date(end + "-01") : null);
+            if (!endDate) return "";
+            startDate.setDate(15); 
+            if(!isCurrent) endDate.setDate(15);
+            let months = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+            months -= startDate.getMonth();
+            months += endDate.getMonth();
+            months++; 
+            if (months <= 0) return "";
+            const years = Math.floor(months / 12);
+            const remainingMonths = months % 12;
+            let str = " (";
+            if (years > 0) str += `${years} ano${years > 1 ? 's' : ''}`;
+            if (remainingMonths > 0) {
+                if (years > 0) str += " e ";
+                str += `${remainingMonths} m${remainingMonths > 1 ? 'eses' : 'ês'}`;
+            }
+            str += ")";
+            return str;
+        }
+
+        // --- Adicionar Campos ---
+        function addExperienceField() {
+            const div = createField(`
+                <input type="text" class="form-control mb-2 title-exp fw-bold" placeholder="Cargo" oninput="updateResume()">
+                <input type="text" class="form-control mb-2 company-exp" placeholder="Empresa" oninput="updateResume()">
+                <div class="row g-2 mb-2 align-items-center">
+                    <div class="col-5"><label class="small text-muted">Início</label><input type="month" class="form-control form-control-sm start-date-exp" oninput="updateResume()"></div>
+                    <div class="col-5"><label class="small text-muted">Fim</label><input type="month" class="form-control form-control-sm end-date-exp" oninput="updateResume()"></div>
+                    <div class="col-2 text-center"><div class="form-check pt-4"><input class="form-check-input current-role-exp" type="checkbox" onchange="toggleEnd(this); updateResume()"><label class="form-check-label small" style="font-size:0.7rem">Atual</label></div></div>
+                </div>
+                <textarea class="form-control desc-exp" rows="4" placeholder="Descrição" oninput="updateResume()"></textarea>
+            `);
+            document.getElementById('experience-form-container').appendChild(div);
+        }
+        function toggleEnd(chk) {
+            let endIn = chk.closest('.row').querySelector('.end-date-exp');
+            if(chk.checked) { endIn.value = ""; endIn.disabled = true; } else { endIn.disabled = false; }
+        }
+
+        function addEducationField() {
+            document.getElementById('education-form-container').appendChild(createField(`
+                <input type="text" class="form-control mb-2 title-edu fw-bold" placeholder="Curso" oninput="updateResume()">
+                <input type="text" class="form-control mb-2 school-edu" placeholder="Instituição" oninput="updateResume()">
+                <input type="text" class="form-control date-edu" placeholder="Ano" oninput="updateResume()">
+            `));
+        }
+        function addCourseField() {
+            document.getElementById('courses-form-container').appendChild(createField(`
+                <input type="text" class="form-control mb-2 title-course fw-bold" placeholder="Nome do Curso" oninput="updateResume()">
+                <input type="text" class="form-control mb-2 school-course" placeholder="Instituição" oninput="updateResume()">
+                <input type="text" class="form-control date-course" placeholder="Ano/Carga" oninput="updateResume()">
+            `));
+        }
+        function addSkillField() {
+            const div = document.createElement('div');
+            div.className = "input-group mb-2";
+            div.innerHTML = `
+                <input type="text" class="form-control skill-input-name" placeholder="Habilidade" oninput="updateResume()">
+                <select class="form-select skill-input-level" style="max-width:140px" onchange="updateResume()">
+                    <option value="">Nível</option><option>Básico</option><option>Intermediário</option><option>Avançado</option><option>Fluente</option>
+                </select>
+                <button class="btn btn-outline-danger" onclick="this.parentElement.remove(); updateResume()">X</button>
+            `;
+            document.getElementById('skills-container').appendChild(div);
+        }
+        function createField(html) {
+            const d = document.createElement('div');
+            d.className = "mb-3 p-3 border rounded bg-light mt-2 position-relative shadow-sm";
+            d.innerHTML = `<button class="btn btn-outline-danger btn-sm position-absolute top-0 end-0 m-2" onclick="this.parentElement.remove(); updateResume()">X</button>${html}`;
+            return d;
+        }
+    </script>
+</body>
+</html>
