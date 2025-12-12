@@ -52,7 +52,6 @@
         }
 
         /* --- ESTILOS DO CURRÍCULO (Compartilhados com a impressão) --- */
-        /* Esses estilos serão injetados na janela de impressão via JS */
         
         .resume-content-style {
             font-size: 12pt;
@@ -206,13 +205,9 @@
 
         // --- A MÁGICA DA IMPRESSÃO PERFEITA ---
         function printPDF() {
-            // 1. Clona o conteúdo do currículo
             const resumeContent = document.getElementById('resume-preview').outerHTML;
-            
-            // 2. Abre uma nova janela em branco
             const printWindow = window.open('', '', 'width=900,height=900');
             
-            // 3. Escreve o HTML limpo nessa janela
             printWindow.document.write(`
                 <html>
                 <head>
@@ -220,28 +215,20 @@
                     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
                     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
                     <style>
-                        /* CSS DE RESET PARA IMPRESSÃO */
                         @page { size: A4; margin: 0; }
                         body { margin: 0; padding: 0; background: white; font-family: 'Roboto', sans-serif; }
-                        
-                        /* Layout do Papel */
                         #resume-preview {
                             width: 100% !important;
                             margin: 0 !important;
-                            padding: 15mm !important; /* Margem de 1.5cm */
+                            padding: 15mm !important;
                             box-sizing: border-box;
                         }
-
-                        /* CSS Copiado do Principal para manter o design */
                         .resume-name { font-size: 26pt; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; text-align: center; line-height: 1.1; }
                         .resume-target-role { font-size: 14pt; font-weight: 500; text-transform: uppercase; color: #444; margin-bottom: 15px; text-align: center; }
                         .resume-contact-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 15px; font-size: 11pt; }
                         .contact-item i { margin-right: 5px; color: #333; }
                         .resume-section-title { font-size: 14pt; font-weight: 800; text-transform: uppercase; border-bottom: 2px solid #000; margin-top: 25px; margin-bottom: 15px; padding-bottom: 4px; break-after: avoid; }
-                        
-                        /* QUEBRA DE PÁGINA PERFEITA */
                         .resume-item { margin-bottom: 18px; break-inside: avoid; }
-                        
                         .resume-item-title { font-size: 13pt; font-weight: 700; }
                         .resume-item-subtitle { font-weight: 500; font-size: 12pt; color: #222; }
                         .resume-date { float: right; font-weight: 600; font-size: 11pt; }
@@ -249,8 +236,6 @@
                         .skills-wrapper { display: flex; flex-wrap: wrap; gap: 8px 15px; }
                         .skill-tag { display: inline-block; font-weight: 700; font-size: 12pt; }
                         .skill-level { font-style: italic; font-weight: 400; font-size: 11pt; color: #444; }
-
-                        /* Temas */
                         .theme-modern .header-wrapper {
                             background-color: #0d47a1; color: white;
                             margin: -15mm -15mm 20px -15mm; padding: 15mm 15mm 10px 15mm; text-align: left;
@@ -273,8 +258,6 @@
             `);
             
             printWindow.document.close();
-            
-            // Aguarda carregar e imprime
             printWindow.focus();
             setTimeout(() => {
                 printWindow.print();
@@ -282,7 +265,6 @@
             }, 500);
         }
 
-        // --- Resto do código (Igual ao anterior) ---
         function changeTheme() {
             const selector = document.getElementById('themeSelector');
             const preview = document.getElementById('resume-preview');
@@ -302,18 +284,43 @@
             document.getElementById('inputPhone').value = "(11) 99999-8888";
             document.getElementById('inputLinkedin').value = "linkedin.com/in/ricardooliveira";
             document.getElementById('inputLocation').value = "São Paulo, SP";
-            document.getElementById('inputSummary').value = "Profissional com mais de 10 anos de experiência...";
+            document.getElementById('inputSummary').value = "Profissional com mais de 10 anos de experiência em gestão de projetos de tecnologia. Especialista em metodologias ágeis (Scrum, Kanban) e liderança de equipes multidisciplinares. Focado em entrega de valor e eficiência operacional.";
 
-            // Gera MUITOS dados para provar a quebra de página
-            for(let i=1; i<=8; i++) {
-                addExperienceField();
-                let exp = document.getElementById('experience-form-container').lastElementChild;
-                exp.querySelector('.title-exp').value = `Gerente de Projetos - Experiência Longa ${i}`;
-                exp.querySelector('.company-exp').value = `Empresa Multinacional ${i}`;
-                exp.querySelector('.start-date-exp').value = "2020-01";
-                exp.querySelector('.current-role-exp').click();
-                exp.querySelector('.desc-exp').value = "Descrição detalhada para ocupar espaço.\n- Responsabilidade A.\n- Responsabilidade B.\n- Responsabilidade C.\n- Conquista importante no projeto.";
-            }
+            // EXPERIÊNCIA 1 (Atual)
+            addExperienceField();
+            let exp1 = document.getElementById('experience-form-container').lastElementChild;
+            exp1.querySelector('.title-exp').value = "Gerente de Projetos Sênior";
+            exp1.querySelector('.company-exp').value = "Tech Solutions Global";
+            exp1.querySelector('.start-date-exp').value = "2022-03";
+            exp1.querySelector('.current-role-exp').click();
+            exp1.querySelector('.desc-exp').value = "Liderança de projetos estratégicos de transformação digital.\n- Gestão de equipe multidisciplinar de 12 pessoas.\n- Implementação de metodologias ágeis (Scrum/Kanban) aumentando a produtividade em 25%.\n- Reporte executivo para stakeholders internacionais.";
+
+            // EXPERIÊNCIA 2 (Anterior)
+            addExperienceField();
+            let exp2 = document.getElementById('experience-form-container').lastElementChild;
+            exp2.querySelector('.title-exp').value = "Coordenador de Projetos";
+            exp2.querySelector('.company-exp').value = "Inovação Ltda";
+            exp2.querySelector('.start-date-exp').value = "2019-01";
+            exp2.querySelector('.end-date-exp').value = "2022-02";
+            exp2.querySelector('.desc-exp').value = "Responsável pelo ciclo de vida de projetos de software.\n- Controle de budget de R$ 2M anuais.\n- Interface direta com clientes para levantamento de requisitos.\n- Redução de custos operacionais em 15% através de otimização de processos.";
+
+            addEducationField();
+            let edu1 = document.getElementById('education-form-container').lastElementChild;
+            edu1.querySelector('.title-edu').value = "MBA em Gestão de Projetos";
+            edu1.querySelector('.school-edu').value = "FGV - Fundação Getúlio Vargas";
+            edu1.querySelector('.date-edu').value = "2022";
+
+            addCourseField();
+            let course1 = document.getElementById('courses-form-container').lastElementChild;
+            course1.querySelector('.title-course').value = "Certificação PMP";
+            course1.querySelector('.school-course').value = "PMI";
+            course1.querySelector('.date-course').value = "2023";
+
+            createSkill("Gestão Ágil (Scrum)", "Avançado");
+            createSkill("Liderança", "Avançado");
+            createSkill("Inglês", "Fluente");
+            createSkill("Jira / Confluence", "Avançado");
+
             updateResume();
         }
 
@@ -445,6 +452,12 @@
             const div = document.createElement('div'); div.className = "input-group mb-2";
             div.innerHTML = `<input type="text" class="form-control skill-input-name" placeholder="Habilidade" oninput="updateResume()"><select class="form-select skill-input-level" style="max-width:140px" onchange="updateResume()"><option value="">Nível</option><option>Básico</option><option>Intermediário</option><option>Avançado</option><option>Fluente</option></select><button class="btn btn-outline-danger" onclick="this.parentElement.remove(); updateResume()">X</button>`;
             document.getElementById('skills-container').appendChild(div);
+        }
+        function createSkill(name, level) {
+            addSkillField();
+            let div = document.getElementById('skills-container').lastElementChild;
+            div.querySelector('.skill-input-name').value = name;
+            div.querySelector('.skill-input-level').value = level;
         }
         function formatMonthYear(d) { if(!d)return""; const[y,m]=d.split('-'); return `${m}/${y}`; }
         function calculateDuration(s,e,c) { if(!s)return""; let start=new Date(s+"-01"); let end=c?new Date():(e?new Date(e+"-01"):null); if(!end)return""; start.setDate(15); if(!c)end.setDate(15); let m=(end.getFullYear()-start.getFullYear())*12; m-=start.getMonth(); m+=end.getMonth(); m++; if(m<=0)return""; const y=Math.floor(m/12); const rm=m%12; let str=" ("; if(y>0)str+=`${y} ano${y>1?'s':''}`; if(rm>0){if(y>0)str+=" e ";str+=`${rm} m${rm>1?'eses':'ês'}`;} str+=")"; return str; }
